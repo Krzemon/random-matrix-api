@@ -1,17 +1,22 @@
 from typing import Optional
 from fastapi import FastAPI, Body
-# import sys
-# from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
+# from pydantic import BaseModel
 
-# from app.api.config import install_github_package
+from app.api.compute import router as compute_router
 
+# from app.api import some_router ale routery sa tutaj
 # from .marchenko_pastur import multiply_matrices, generate_random_matrix
 
-# from pydantic import BaseModel
-# import httpx # zewnętrzne serwisy API
+
 
 app = FastAPI()
+
+app.include_router(compute_router, prefix="/api")
+
+
+# app.include_router(some_router)
+
 
 # ustawienie folderu libs w sys.path
 # libs_path = Path(__file__).parent / "libs"
@@ -79,6 +84,8 @@ async def multiply_matrices_endpoint(a: list = Body(...), b: list = Body(...)):
     result = multiply_matrices(a_np, b_np)
     return {"result": result.tolist()}  
 
+
+# import httpx # zewnętrzne serwisy API
 # @app.get("/joke")
 # async def get_joke():
 #     """

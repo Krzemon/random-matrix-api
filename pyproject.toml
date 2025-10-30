@@ -28,7 +28,14 @@ dependencies = [
     "typing-inspection==0.4.2",
     "typing_extensions==4.15.0",
     "uvicorn==0.38.0",
-    "git+https://github.com/Krzemon/mp-package.git@main#egg=mp_package&subdirectory=matrix_utils"
+    "mp-package @ git+https://github.com/Krzemon/mp-package.git@main"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.4.2",
+    "pytest-cov",
+    "httpx"
 ]
 
 [tool.setuptools.packages.find]
