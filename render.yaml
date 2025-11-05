@@ -7,4 +7,4 @@ services:
     autoDeploy: true
     # buildCommand: pip install -r requirements.txt
     buildCommand: pip install . # .toml
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
