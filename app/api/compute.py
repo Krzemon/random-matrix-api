@@ -1,43 +1,112 @@
-import io
-import base64
-import matplotlib.pyplot as plt
-from fastapi import APIRouter
-from models.parameters import PlotParams
-
-from mp_package import *
+from fastapi import APIRouter, Form
+from fastapi.responses import JSONResponse
+import numpy as np
 
 router = APIRouter()
 
+# To podejście jest w pełni poprawne i proste.
+# Nie potrzebujesz Pydantic BaseModel, bo nie wysyłasz JSON, tylko dane formularza.
+# Kiedy użyć Pydantic:
+# Jeśli chcesz wysyłać JSON POST zamiast form-data (fetch(url, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(data)})).
+# Daje dodatkowe walidacje, wartości domyślne i automatyczne dokumentowanie w Swagger UI.
+# W Twoim przypadku, jeśli wszystko działa z Form(...), nie ma potrzeby komplikować kodu Pydanticem.
 @router.post("/plot")
-def generate_plot(params: PlotParams):
-    N1, N2, T = params.N1, params.N2, params.T
-    N = N1 + N2
-    sigmas_squared = params.sigmas_squared
-    num_trials = params.num_trials
-    batch_size = params.batch_size
-    bins = params.bins
+def generate_plot(
+    N1: int = Form(...),
+    N2: int = Form(...),
+    T: int = Form(...),
+    sigma_squared: float = Form(...),
+    num_trials: int = Form(...),
+    bins: int = Form(...)
+):
+    mu_total = 0
+    sigma_total = np.sqrt(sigma_squared)
 
-    # --- tutaj Twoje funkcje obliczeniowe ---
-    # np. theoretical_eigenvalue_distribution() i generate_eigenvalues_batch()
-    # Dla przykładu wstawiam prosty wykres:
+    samples = np.random.normal(mu_total, sigma_total, num_trials)
+    counts, edges = np.histogram(samples, bins=bins, density=True)
+    centers = (edges[:-1] + edges[1:]) / 2
 
-    fig, ax = plt.subplots(figsize=(8, 6))
-    ax.hist([1, 2, 2.5, 3, 3, 3.5, 4], bins=bins, color='skyblue')
-    ax.set_title(f"N={N}, T={T}")
-    ax.set_xlabel("Wartość własna")
-    ax.set_ylabel("Gęstość")
+    theory = (1 / (sigma_total * np.sqrt(2 * np.pi))) * np.exp(
+        -0.5 * ((centers - mu_total) / sigma_total) ** 2
+    )
 
-    # --- konwersja do base64 ---
-    buf = io.BytesIO()
-    plt.tight_layout()
-    plt.savefig(buf, format="png", dpi=150)
-    plt.close(fig)
-    buf.seek(0)
-    image_base64 = base64.b64encode(buf.read()).decode("utf-8")
+    chart_data = {
+        "x": centers.tolist(),
+        "hist": counts.tolist(),
+        "theory": theory.tolist(),
+        "stats": {
+            "mean": float(np.mean(samples)),
+            "var": float(np.var(samples)),
+            "min": float(np.min(samples)),
+            "max": float(np.max(samples))
+        }
+    }
+    return JSONResponse(chart_data)
 
-    return {"image": f"data:image/png;base64,{image_base64}"}
 
 
+# # OLD: RYSUJE GAUSSA ALE DZIALA: ZWRACA HTML
+# from fastapi import APIRouter, Form
+# from fastapi.responses import HTMLResponse
+# import numpy as np
+# import json
+
+# router = APIRouter()
+
+
+# @router.post("/plot", response_class=HTMLResponse)
+# def generate_plot(
+#     N1: int = Form(...),
+#     N2: int = Form(...),
+#     T: int = Form(...),
+#     sigma_squared: float = Form(...),
+#     num_trials: int = Form(...),
+#     bins: int = Form(...)
+# ):
+#     """
+#     Endpoint generujący histogram i teoretyczny rozkład Gaussa
+#     dla danych parametrów z formularza HTMX.
+#     """
+
+#     # --- Obliczenia ---
+#     N_total = N1 + N2
+#     mu_total = 0
+#     sigma_total = np.sqrt(sigma_squared)
+
+#     # Generowanie próbek (symulacja)
+#     samples = np.random.normal(loc=mu_total, scale=sigma_total, size=num_trials)
+
+#     # Histogram (gęstość prawdopodobieństwa)
+#     counts, edges = np.histogram(samples, bins=bins, density=True)
+#     centers = (edges[:-1] + edges[1:]) / 2
+
+#     # Teoretyczny rozkład Gaussa
+#     theory = (1 / (sigma_total * np.sqrt(2 * np.pi))) * np.exp(
+#         -0.5 * ((centers - mu_total) / sigma_total) ** 2
+#     )
+
+#     # Dane dla Chart.js
+#     chart_data = {
+#         "x": centers.tolist(),
+#         "hist": counts.tolist(),
+#         "theory": theory.tolist()
+#     }
+
+#     # --- Fragment HTML do wstrzyknięcia przez HTMX ---
+#     html = f"""
+#     <div class="mt-6">
+#       <h3 class="text-lg font-semibold mb-2 text-center">
+#         Histogram i krzywa teoretyczna (σ² = {sigma_squared})
+#       </h3>
+#       <canvas id="histogram-chart" 
+#               data-chart='{json.dumps(chart_data)}' 
+#               width="600" 
+#               height="400" 
+#               class="mx-auto">
+#       </canvas>
+#     </div>
+#     """
+#     return HTMLResponse(html)
 
 
 
@@ -45,71 +114,38 @@ def generate_plot(params: PlotParams):
 
 
 # from fastapi import APIRouter
-# from pydantic import BaseModel
+# from models.parameters import PlotParams
+# import numpy as np
 
 # router = APIRouter()
 
-# class ComputeRequest(BaseModel):
-#     x: float
-#     y: float
+# moje macierze
 
-# class ComputeResponse(BaseModel):
-#     result: float
+# @router.post("/plot")
+# def generate_plot(params: PlotParams):
+#     N1, N2, T = params.N1, params.N2, params.T
+#     sigmas_squared = params.sigmas_squared
+#     num_trials = params.num_trials
+#     batch_size = params.batch_size
+#     bins = params.bins
 
-# @router.post("/compute", response_model=ComputeResponse)
-# def compute(data: ComputeRequest):
-#     return ComputeResponse(result=data.x + data.y)
+#     # --------------------------
+#     # Tutaj Twoje obliczenia
+#     # --------------------------
+#     # Na potrzeby przykładu generujemy dane normalne
+#     data = np.random.normal(0, np.sqrt(sigmas_squared[0]), size=num_trials)
 
+#     # Histogram
+#     hist, edges = np.histogram(data, bins=bins, density=True)
+#     x = (edges[:-1] + edges[1:]) / 2  # środek binów
 
+#     # Krzywa teoretyczna (normalna)
+#     sigma = np.sqrt(sigmas_squared[0])
+#     theory = (1 / (sigma * np.sqrt(2 * np.pi))) * np.exp(-x**2 / (2 * sigma**2))
 
-
-
-
-
-
-# # ----------------------------
-# # Endpointy
-# # ----------------------------
-# @app.get("/")
-# async def root():
-#     return {"message": "Hello World"}
-
-# @app.get("/api/compute")
-# async def compute():
-#     # tutaj wywołujesz funkcje z pakietu numba
-#     result = {"message": "Wynik obliczeń"}  
-#     return result
-
-# @app.get("/items/{item_id}")
-# def read_item(item_id: int, q: Optional[str] = None):
-#     return {"item_id": item_id, "q": q}
-
-# @app.get("/matrix/random")
-# async def random_matrix(rows: int = 3, cols: int = 3):
-#     matrix = generate_random_matrix(rows, cols)
-#     return {"matrix": matrix.tolist()}  # JSON nie obsługuje ndarray
-
-# @app.post("/matrix/multiply")
-# async def multiply_matrices_endpoint(a: list = Body(...), b: list = Body(...)):
-#     """
-#     Otrzymuje dwie macierze w formie list (JSON), mnoży je i zwraca wynik
-#     """
-#     import numpy as np
-
-#     a_np = np.array(a)
-#     b_np = np.array(b)
-#     result = multiply_matrices(a_np, b_np)
-#     return {"result": result.tolist()}  
-
-
-# # import httpx # zewnętrzne serwisy API
-# # @app.get("/joke")
-# # async def get_joke():
-# #     """
-# #     Pobiera losowy dowcip z zewnętrznego API i zwraca go klientowi
-# #     """
-# #     url = "https://official-joke-api.appspot.com/random_joke"
-# #     async with httpx.AsyncClient() as client:
-# #         response = await client.get(url)
-# #         data = response.json()
-# #     return {"joke": data}
+#     # Zwracamy JSON
+#     return {
+#         "x": x.tolist(),
+#         "hist": hist.tolist(),
+#         "theory": theory.tolist()
+#     }
