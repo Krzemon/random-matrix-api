@@ -6,9 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "random-matrix-api"
 version = "0.1.0"
 description = "API for calculations on random matrices"
-authors = [
-    { name = "Przemysław Ryś", email = "przemek12413@gmail.com" }
-]
+authors = [{name="Przemysław Ryś", email="przemek12413@gmail.com"}]
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -29,7 +27,7 @@ dependencies = [
     "typing_extensions==4.15.0",
     "uvicorn==0.38.0",
     "matplotlib==3.10.7",
-    "python-multipart==0.0.20"
+    "python-multipart==0.0.20",
     "mp-package @ git+https://github.com/Krzemon/mp-package.git@main"
 ]
 
