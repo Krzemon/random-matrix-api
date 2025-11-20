@@ -28,6 +28,7 @@ dependencies = [
     "uvicorn==0.38.0",
     "matplotlib==3.10.7",
     "python-multipart==0.0.20",
+    "tqdm==4.67.1",
     "mp-package @ git+https://github.com/Krzemon/mp-package.git@main"
 ]
 
