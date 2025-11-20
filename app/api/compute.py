@@ -41,7 +41,7 @@ def generate_plot(payload: PlotPayload):
     # -------------------------
     start_time = time.time()
     all_eigenvalues = generate_eigenvalues(N_list, T, sigma_squared_list, num_trials)
-    elapsed_time = (time.time() - start_time) / 60
+    elapsed_time = (time.time() - start_time) # in seconds
 
     # -------------------------
     # Histogram
