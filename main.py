@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.router import api_router
+from app.api.compute import router
 
 app = FastAPI(
     title="Random Matrix Api",
@@ -17,7 +17,7 @@ app.add_middleware(
 )
 
 # app.include_router(api_router, prefix="/api")
-app.include_router(api_router)
+app.include_router(router, prefix="/mp")
 
 @app.get("/")
 def root():

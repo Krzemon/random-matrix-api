@@ -1,6 +1,5 @@
-from fastapi import APIRouter
-from app.api import compute
+# from fastapi import APIRouter
+# , parameters
 
-
-api_router = APIRouter()
-api_router.include_router(compute.router, prefix="/mp", tags=["plot"])
+# api_router = APIRouter()
+# api_router.include_router(compute.router, prefix="/mp", tags=["plot"])
