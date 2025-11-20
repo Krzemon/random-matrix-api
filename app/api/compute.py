@@ -62,33 +62,58 @@
 
 
 from fastapi import APIRouter, Form
+from typing import List
 from fastapi.responses import JSONResponse
 import numpy as np
 import time
 from tqdm import tqdm
+from pydantic import BaseModel
+
 from mp_package.marchenko_pastur import theoretical_eigenvalue_distribution, generate_eigenvalues_batch
 
 router = APIRouter()
 
+# class PlotRequest(BaseModel):
+#     N_list: list[int]
+#     sigma_squared_list: list[float]
+#     T: int
+#     num_trials: int
+#     bins: int
+
+class PlotPayload(BaseModel):
+    N_list: List[int]
+    sigma_squared_list: List[float]
+    T: int
+    num_trials: int
+    bins: int
+
 @router.post("/plot")
-def generate_plot(
-    N_list: list[int] = Form(...),
-    sigma_squared_list: list[float] = Form(...),
-    T: int = Form(...),
-    num_trials: int = Form(...),
-    bins: int = Form(...)
-):
-    # N = sum(N_list)
+def generate_plot(payload: PlotPayload):
+    N_list = payload.N_list
+    sigma_squared_list = payload.sigma_squared_list
+    T = payload.T
+    num_trials = payload.num_trials
+    bins = payload.bins
+# @router.post("/plot")
+# def generate_plot(
+#     N: int = Form(...),
+#     sigma_squared: float = Form(...),
+#     T: int = Form(...),
+#     num_trials: int = Form(...),
+#     bins: int = Form(...)
+# ):
+    # print(N, sigma_squared, T, num_trials, bins)
+    # 10 1.0 100 10000 50
+
+
+    
+    N = sum(N_list)
+    N_list = [N]
+    # sigma_squared_list = [sigma_squared]
+    
     batch_size = 10000  # można dodać jako parametr wejściowy
-    # x_theo, rho_theo = theoretical_eigenvalue_distribution(
-    #     N, T, N1, sigma_squared_list, num_points=1000
-    # )
+
     x_theo, rho_theo = theoretical_eigenvalue_distribution(N_list, T, sigma_squared_list, num_points=1000)
-
-
-
-
-
     if len(x_theo) == 0 or len(rho_theo) == 0:
         return JSONResponse({"error": "Nie udało się obliczyć teoretycznego rozkładu."}, status_code=500)
 
