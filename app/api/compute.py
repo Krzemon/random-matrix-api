@@ -6,7 +6,8 @@ import time
 from tqdm import tqdm
 from pydantic import BaseModel
 
-from mp_package.marchenko_pastur import theoretical_eigenvalue_distribution, generate_eigenvalues
+from mp_package.gen_theory import theoretical_eigenvalue_distribution
+from mp_package.gen_histogram import generate_eigenvalues
 
 router = APIRouter()
 
@@ -27,11 +28,6 @@ def generate_plot(plot_data: PlotData):
     dist_name = plot_data.dist_name
     bins = plot_data.bins
 
-    # grupy o okreslonej wariancji
-    # chart_data = {
-    #     "groups": []
-    # }
-
     # ------------  Teoretyczny  -------------
     start_time_theo = time.time()
     x_theo, rho_theo, theo_stats = theoretical_eigenvalue_distribution(N_list, T, sigma_squared_list, num_points=1000)
@@ -40,15 +36,6 @@ def generate_plot(plot_data: PlotData):
         return JSONResponse({"error": "Statystyki teoretycznego rozkładu zawierają NaN lub inf."}, status_code=400)
     if len(x_theo) == 0 or len(rho_theo) == 0:
         return JSONResponse({"error": "Nie udało się obliczyć teoretycznego rozkładu."}, status_code=500)
-
-    all_theo_stats = {
-        "mean": float(theo_stats["mean"]),
-        "var":  float(theo_stats["variance"]),
-        "skew": float(theo_stats["skewness"]),
-        "kurt": float(theo_stats["kurtosis"]),
-        "min": float(theo_stats["min"]),
-        "max": float(theo_stats["max"]),
-    }
     
     # ------------  Histogram  -------------
     start_time_hist = time.time()
@@ -58,16 +45,6 @@ def generate_plot(plot_data: PlotData):
         return JSONResponse({"error": "Statystyki histogramu zawierają NaN lub inf."}, status_code=400)
     if len(all_eigenvalues) == 0:
         return JSONResponse({"error": "Nie udało się obliczyć histogramu."}, status_code=500)
-
-
-    all_hist_stats = {
-        "mean": float(hist_stats["mean"]),
-        "var":  float(hist_stats["variance"]),
-        "skew": float(hist_stats["skewness"]),
-        "kurt": float(hist_stats["kurtosis"]),
-        "min": float(hist_stats["min"]),
-        "max": float(hist_stats["max"]),
-    }
 
     # ------------  -------------  -------------
     other_stats = {
@@ -83,8 +60,8 @@ def generate_plot(plot_data: PlotData):
         "y_hist": counts.tolist(),
         "x_theory": x_theo.tolist(),
         "y_theory": rho_theo.tolist(),
-        "hist_stats": all_hist_stats,
-        "theo_stats": all_theo_stats,
+        "hist_stats": hist_stats,
+        "theo_stats": theo_stats,
         "other_stats": other_stats
     }
 

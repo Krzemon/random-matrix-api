@@ -5,18 +5,16 @@ from app.api.compute import router
 app = FastAPI(
     title="Random Matrix Api",
     version="0.1.0",
-    description="API for calculations on random matrices"
+    description="API do obliczeń macierzy losowych",
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # lub np. ["https://twoja-domena.pl"]
-    # allow_credentials=True,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# app.include_router(api_router, prefix="/api")
+ 
 app.include_router(router, prefix="/mp")
 
 @app.get("/")
