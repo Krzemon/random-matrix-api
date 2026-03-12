@@ -2,29 +2,40 @@
 
 Backend service for generating and analyzing random matrices.
 
-Repository: https://github.com/Krzemon/random-matrix-api
-
 ## Overview
 
-Random Matrix API is a backend application that provides an HTTP interface for generating and working with random matrices.  
+Random Matrix API provides a REST API for generating random matrices and performing basic numerical operations.  
 It is designed to support a web application that visualizes matrix properties and results from Random Matrix Theory.
-
-Random matrices are widely used in statistics, physics, and machine learning, where matrix elements are treated as random variables and their spectral properties are studied.
 
 ## Backend Implementation
 
-The backend server of the application has been implemented in **Python** using the **FastAPI** framework, which is designed for building REST APIs.  
+The backend is implemented in **Python** using the **FastAPI** framework. Key components:
 
-Key implementation details:
-
-- **Pydantic** is used to define data schemas for input validation and parsing JSON data in HTTP request bodies.
-- The application is run using the **Uvicorn ASGI server**, responsible for handling HTTP requests and managing communication between clients and the backend.
-- Middleware configuration allows HTTP requests to the API from any domain, using any HTTP methods and headers, enabling cross-origin requests.
+- **Pydantic** – defines data schemas for input validation and JSON parsing.
+- **Uvicorn ASGI server** – handles HTTP requests and communication between client and backend.
+- Middleware allows cross-origin requests from any domain with any HTTP methods and headers.
 
 ## Features
 
-- Generation of random matrices
-- Basic matrix operations
+- Generate random matrices
+- Perform basic matrix operations
 - Numerical analysis of matrix properties
-- REST API for communication with the frontend
-- JSON responses for easy integration with web applications
+- JSON-based REST API for frontend integration
+
+## Installation and Running
+
+Clone the repository and install dependencies (including the computation package from GitHub):
+
+```bash
+git clone https://github.com/Krzemon/random-matrix-api.git
+cd random-matrix-api
+pip install -r requirements.txt
+```
+Package repository: https://github.com/Krzemon/mp-package
+In requirements.txt include a line like: git+https://github.com/Krzemon/mp-package.git@main#egg=mp-package
+
+## Start the server (default host & port):
+```bash
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
