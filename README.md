@@ -1,6 +1,13 @@
-# Random Matrix API
+# Backend service for generating and analyzing random matrices.
 
-Backend service for generating and analyzing random matrices.
+The application consumes a backend API hosted at:
+
+- `https://random-matrix-api.onrender.com/mp`
+
+Endpoints:
+
+- **`/theo`** – provides data for the **theoretical distribution**, based on the article [link](https://arxiv.org/pdf/cond-mat/0508341).  
+- **`/hist`** – provides data for the **empirical distribution**, generated using **Monte Carlo simulations**.
 
 ## Overview
 
@@ -32,7 +39,6 @@ cd random-matrix-api
 pip install -r requirements.txt
 ```
 Package repository: https://github.com/Krzemon/mp-package
-In requirements.txt include a line like: git+https://github.com/Krzemon/mp-package.git@main#egg=mp-package
 
 ## Start the server (default host & port):
 ```bash
